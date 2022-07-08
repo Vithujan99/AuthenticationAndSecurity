@@ -1,4 +1,5 @@
 //jshint esversion:6
+require('dotenv').config();
 const express = require("express");
 const bodyParser = require("body-parser");
 const ejs = require("ejs");
@@ -19,9 +20,9 @@ const userSchema = new mongoose.Schema({
     password: String,
 });
 //Encryption for collections User
-// Add any other plugins or middleware here. For example, middleware for hashing passwords
-const secret = "ThisisourlittleSecret.";
-userSchema.plugin(encrypt, {secret: secret, encryptedFields: ["password"]});
+// Add any other plugins or middleware here. For example, middleware for hashing passwords. Is now .env.
+
+userSchema.plugin(encrypt, {secret: process.env.SECRET, encryptedFields: ["password"]});
 // This adds _ct and _ac fields to the schema, as well as pre 'init' and pre 'save' middleware,
 // and encrypt, decrypt, sign, and authenticate instance methods
 
