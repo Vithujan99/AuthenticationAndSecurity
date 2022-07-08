@@ -4,7 +4,7 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const ejs = require("ejs");
 const mongoose = require("mongoose");
-const encrypt = require("mongoose-encryption");
+const md5 = require("md5");
 
 const app = express();
 
@@ -19,12 +19,6 @@ const userSchema = new mongoose.Schema({
     email: String,
     password: String,
 });
-//Encryption for collections User
-// Add any other plugins or middleware here. For example, middleware for hashing passwords. Is now .env.
-
-userSchema.plugin(encrypt, {secret: process.env.SECRET, encryptedFields: ["password"]});
-// This adds _ct and _ac fields to the schema, as well as pre 'init' and pre 'save' middleware,
-// and encrypt, decrypt, sign, and authenticate instance methods
 
 const User = new mongoose.model("User", userSchema);
 
@@ -43,7 +37,7 @@ app.route("/register")
             }else{
                 const user = new User({
                     email: req.body.username,
-                    password: req.body.password
+                    password: md5(req.body.password)
                 })
                 user.save(function(err){
                     if(err){
@@ -56,6 +50,7 @@ app.route("/register")
         });
     });
 
+
 app.route("/login")
     .get(function(req, res){
         res.render("login");
@@ -66,7 +61,7 @@ app.route("/login")
                 console.log(err);
             }else{
                 if(foundUser){
-                    if(foundUser.password === req.body.password){
+                    if(foundUser.password === md5(req.body.password)){
                         res.render("secrets");
                     }else{
                         res.send("Wrong Password")
@@ -78,6 +73,7 @@ app.route("/login")
         })
     });
 
+//No app.get for secrets and submit they should be only reacheble trough login adn register!!
 app.listen(3000, function(){
     console.log("Server started on port 3000");
 });
